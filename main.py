@@ -1,9 +1,10 @@
+#!/usr/bin/python
 from services import memberService
 from ldap import ldapService
 from config import config
 import logging
 
-conf = config.create_conf('scoregLdapSync.ini')
+conf = config.read_conf('scoregLdapSync.ini')
 ldapService.connect(conf['ldap'])
 memberService.init(conf['Scoreg'])
 logging.basicConfig(filename='ldap.log', level=logging.INFO)

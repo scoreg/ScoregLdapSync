@@ -31,15 +31,10 @@ def get_all_scoutids(org):
 
 def get_all_scouts(scoutids):
     members = []
-    i = 0
     for id in scoutids:
         url = '{0}/member/findMemberByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,id)
         r = requests.get(url,headers=headers)
         json = r.json()
         if 'MEMBER_FULL' in json['Member']['scoutState']:
             members.append(json['Member'])
-        i += 1
-        if i == 50:
-            return members
-        print(i)
     return members

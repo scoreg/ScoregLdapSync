@@ -24,7 +24,8 @@ def connect(conf):
 
 def create_database(members):
     for member in members:
-        conn.add('cn= ' + get_username(member) + ',' + config['UserDN'], 'inetorgperson',
+        if not member_exist('cn= ' + get_username(member) + ',' + config['UserDN']):
+            conn.add('cn= ' + get_username(member) + ',' + config['UserDN'], 'inetorgperson',
                  {'givenName': member.get('firstname', ''),
                   'sn': remove_accents(member.get('lastname', '')),
                   'mail': member.get('emailPrimary', ''),
@@ -33,23 +34,23 @@ def create_database(members):
                   'l': member.get('city'),
                   'street': member.get('street', ''),
                   'postalCode': member.get('postcode', '')})
-        logging.info(conn.result)
+            logging.info(conn.result)
 
 
 def create_group(groupname):
-    conn.add('cn= ' + groupname+ ',' + config['GroupDN'], 'groupofnames',
-                 {'member': config.get('user', '')})
+    conn.add('cn= ' + groupname + ',' + config['GroupDN'], 'groupofnames',
+             {'member': config.get('user', '')})
     logging.info(conn.result)
 
 
-def adduser_group(cn,groupname):
-    conn.modify('cn= ' + groupname+ ',' + config['GroupDN'],
+def adduser_group(cn, groupname):
+    conn.modify('cn= ' + groupname + ',' + config['GroupDN'],
                 {'member': (MODIFY_ADD, [cn])})
     logging.info(conn.result)
 
 
-def removeuser_group(cn,groupname):
-    conn.modify('cn= ' + groupname+ ',' + config['GroupDN'],
+def removeuser_group(cn, groupname):
+    conn.modify('cn= ' + groupname + ',' + config['GroupDN'],
                 {'member': (MODIFY_DELETE, [cn])})
     logging.info(conn.result)
 
@@ -94,6 +95,17 @@ def find_member(cn):
         member['postcode'] = memldap.get('postalcode')
         return member
     return None
+
+
+def member_exist(cn):
+    conn.search(search_base=config['UserDN'],
+                search_filter='(&(objectClass=inetOrgPerson)(cn=' + cn + '))',
+                search_scope=SUBTREE,
+                attributes=['cn'],
+                paged_size=5)
+    if len(conn.response) > 0:
+        return True
+    return False
 
 
 def unbind():
