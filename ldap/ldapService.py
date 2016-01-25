@@ -24,8 +24,7 @@ def connect(conf):
 
 def create_database(members):
     for member in members:
-        if not member_exist('cn= ' + get_username(member) + ',' + config['UserDN']):
-            conn.add('cn= ' + get_username(member) + ',' + config['UserDN'], 'inetorgperson',
+        conn.add('cn= ' + get_username(member) + ',' + config['UserDN'], 'inetorgperson',
                  {'givenName': member.get('firstname', ''),
                   'sn': remove_accents(member.get('lastname', '')),
                   'mail': member.get('emailPrimary', ''),
@@ -34,7 +33,7 @@ def create_database(members):
                   'l': member.get('city'),
                   'street': member.get('street', ''),
                   'postalCode': member.get('postcode', '')})
-            logging.info(conn.result)
+        logging.info(conn.result)
 
 
 def create_group(groupname):
@@ -117,7 +116,22 @@ def unbind():
 
 
 def get_username(member):
-    return remove_accents(member.get('firstname', '').lower()[0] + member.get('lastname', '')).lower()
+    return generate_username(member.get('firstname', ''), member.get('lastname', ''))
+
+
+def generate_username(first_name,last_name):
+    val = remove_accents("{0}{1}".format(first_name[0],last_name).lower())
+    x=0
+    while True:
+        if x == 0 and member_exist(val):
+            return val
+        else:
+            new_val = "{0}{1}".format(val,x)
+            if member_exist(val):
+                return new_val
+        x += 1
+        if x > 1000000:
+            raise Exception("Name is super popular!")
 
 
 def remove_accents(data):
