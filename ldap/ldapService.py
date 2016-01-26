@@ -1,6 +1,5 @@
 from ldap3 import Server, Connection, ALL, MODIFY_ADD, MODIFY_DELETE, MODIFY_REPLACE, SUBTREE
-import logging
-import unicodedata, string
+import logging,unicodedata, string
 from ldap import ldaputil
 
 conn = None
@@ -119,14 +118,14 @@ def get_username(member):
     return generate_username(member.get('firstname', ''), member.get('lastname', ''))
 
 
-def generate_username(first_name,last_name):
-    val = remove_accents("{0}{1}".format(first_name[0],last_name).lower())
-    x=0
+def generate_username(first_name, last_name):
+    val = remove_accents("{0}{1}".format(first_name[0], last_name).lower())
+    x = 0
     while True:
         if x == 0 and member_exist(val):
             return val
         else:
-            new_val = "{0}{1}".format(val,x)
+            new_val = "{0}{1}".format(val, x)
             if member_exist(val):
                 return new_val
         x += 1
