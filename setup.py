@@ -28,5 +28,6 @@ setup(
     install_requires=[
         "ldap3 >= 1.0.4",
         "passlib >= 1.6.5",
+        "requests >= 2.9.1",
     ],
 )
