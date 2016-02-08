@@ -7,8 +7,9 @@ import logging
 
 
 def main():
-    logging.basicConfig(filename='ldap.log', level=logging.INFO)
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s')
+    logging.basicConfig(handlers=[logging.FileHandler('ldap.log', 'w', 'utf-8')],
+                        format='%(asctime)s %(levelname)s:%(message)s',
+                        level=logging.INFO)
 
     conf = config.read_conf('scoregLdapSync.ini')
     ldapService.connect(conf['ldap'])
