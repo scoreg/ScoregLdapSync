@@ -23,3 +23,6 @@ def main():
     else:
         ldapService.update_database(members)
     ldapService.unbind()
+
+if __name__ == '__main__':
+    main()
