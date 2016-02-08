@@ -12,7 +12,7 @@ memberService.init(conf['Scoreg'])
 
 members = memberService.get_all_scouts(conf['Scoreg']['OrgId'])
 
-sorted(members,key=attrgetter('scoutId'))
+#sorted(members,key=attrgetter('scoutId'))
 
 if conf['Default'].getboolean('createmode'):
     ldapService.create_database(members)
