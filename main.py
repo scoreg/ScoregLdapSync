@@ -6,6 +6,8 @@ from operator import attrgetter
 import logging
 
 logging.basicConfig(filename='ldap.log', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s')
+
 conf = config.read_conf('scoregLdapSync.ini')
 ldapService.connect(conf['ldap'])
 memberService.init(conf['Scoreg'])
