@@ -5,21 +5,21 @@ from config import config
 from operator import attrgetter
 import logging
 
-logging.basicConfig(filename='ldap.log', level=logging.INFO)
-logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s')
 
-conf = config.read_conf('scoregLdapSync.ini')
-ldapService.connect(conf['ldap'])
-memberService.init(conf['Scoreg'])
+def main():
+    logging.basicConfig(filename='ldap.log', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s')
 
-members = memberService.get_all_scouts(conf['Scoreg']['OrgId'])
+    conf = config.read_conf('scoregLdapSync.ini')
+    ldapService.connect(conf['ldap'])
+    memberService.init(conf['Scoreg'])
 
-#sorted(members,key=attrgetter('scoutId'))
+    members = memberService.get_all_scouts(conf['Scoreg']['OrgId'])
 
-if conf['Default'].getboolean('createmode'):
-    ldapService.create_database(members)
-else:
-    ldapService.update_database(members)
+    #sorted(members,key=attrgetter('scoutId'))
 
-
-ldapService.unbind()
+    if conf['Default'].getboolean('createmode'):
+        ldapService.create_database(members)
+    else:
+        ldapService.update_database(members)
+    ldapService.unbind()
