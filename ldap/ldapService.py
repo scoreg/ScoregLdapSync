@@ -130,9 +130,9 @@ def get_username(member):
 
 def generate_username(first_name, last_name):
     val = remove_accents("{0}{1}".format(first_name[0], last_name).lower())
-    x = 0
+    x = 1
     while True:
-        if x == 0 and member_exist(val):
+        if x == 1 and not member_exist(val):
             return val
         else:
             new_val = "{0}{1}".format(val, x)

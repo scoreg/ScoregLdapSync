@@ -1,4 +1,5 @@
 import requests
+import logging
 
 headers = {'Accept': 'application/json'}
 resturl = ''
@@ -34,7 +35,7 @@ def get_all_scouts(org):
     members = []
     for id in scoutIds:
         member = get_scout(id)
-        if member != None:
+        if member is not None:
             members.append(member)
     return members
 
@@ -43,6 +44,6 @@ def get_scout(scoudId):
     url = '{0}/member/findMemberByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,scoudId)
     r = requests.get(url,headers=headers)
     json = r.json()
-    if 'MEMBER_FULL' in json['Member']['scoutState']:
+    if 'MEMBER_FULL' == json['Member']['scoutState']:
         return json['Member']
     return None
