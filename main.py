@@ -13,7 +13,7 @@ memberService.init(conf['Scoreg'])
 
 print(lls.encrypt("password"))
 
-members = memberService.get_all_scouts(31)
+members = memberService.get_all_scouts(conf['Scoreg']['OrgId'])
 
 sorted(members,key=attrgetter('scoutId'))
 

@@ -22,6 +22,7 @@ def create_conf(file):
     scoreg['User'] = 'user'
     scoreg['Password'] = 'password'
     scoreg['OrgAuthId'] = '0'
+    scoreg['OrgId'] = 0
     with open(file, 'w') as configfile:
         config.write(configfile)
 

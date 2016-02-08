@@ -1,5 +1,5 @@
 from ldap3 import Server, Connection, ALL, MODIFY_ADD, MODIFY_DELETE, MODIFY_REPLACE, SUBTREE
-import logging,unicodedata, string
+import logging, unicodedata, string
 from ldap import ldaputil
 
 conn = None
@@ -23,11 +23,11 @@ def connect(conf):
 
 def create_database(members):
     for member in members:
-        conn.add('cn= ' + get_username(member) + ',' + config['UserDN'], 'inetorgperson',
+        conn.add('cn= ' + member.get('scoutId', '') + ',' + config['UserDN'], 'inetorgperson',
                  {'givenName': member.get('firstname', ''),
                   'sn': remove_accents(member.get('lastname', '')),
                   'mail': member.get('emailPrimary', ''),
-                  'uid': member.get('scoutId', ''),
+                  'uid': get_username(member),
                   'st': member.get('country', ''),
                   'l': member.get('city'),
                   'street': member.get('street', ''),
@@ -55,15 +55,25 @@ def removeuser_group(cn, groupname):
 
 def update_database(members):
     for member in members:
-        conn.modify('cn= ' + get_username(member) + ',' + config['UserDN'],
-                    {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
-                     'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
-                     'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
-                     'uid': (MODIFY_REPLACE, [member.get('scoutId', '')]),
-                     'st': (MODIFY_REPLACE, [member.get('country', '')]),
-                     'l': (MODIFY_REPLACE, [member.get('city')]),
-                     'street': (MODIFY_REPLACE, [member.get('street', '')]),
-                     'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
+        if member_exist(member.get('scoutId', '')):
+            conn.modify('cn= ' + member.get('scoutId', '') + ',' + config['UserDN'],
+                        {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
+                         'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
+                         'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
+                         'st': (MODIFY_REPLACE, [member.get('country', '')]),
+                         'l': (MODIFY_REPLACE, [member.get('city')]),
+                         'street': (MODIFY_REPLACE, [member.get('street', '')]),
+                         'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
+        else:
+            conn.add('cn= ' + member.get('scoutId', '') + ',' + config['UserDN'], 'inetorgperson',
+                     {'givenName': member.get('firstname', ''),
+                      'sn': remove_accents(member.get('lastname', '')),
+                      'mail': member.get('emailPrimary', ''),
+                      'uid': get_username(member),
+                      'st': member.get('country', ''),
+                      'l': member.get('city'),
+                      'street': member.get('street', ''),
+                      'postalCode': member.get('postcode', '')})
         logging.info(conn.result)
 
 
@@ -86,7 +96,7 @@ def find_member(cn):
         member['firstname'] = memldap.get('givenName')
         member['lastname'] = memldap.get('sn')
         member['emailPrimary'] = memldap.get('mail')
-        member['scoutId'] = memldap.get('uid')
+        member['scoutId'] = cn
         member['country'] = memldap.get('st')
         member['city'] = memldap.get('l')
         member['street'] = memldap.get('street')
@@ -97,9 +107,9 @@ def find_member(cn):
 
 def member_exist(cn):
     conn.search(search_base=config['UserDN'],
-                search_filter='(&(objectClass=inetOrgPerson)(cn=' + cn + '))',
+                search_filter='(&(objectClass=inetOrgPerson)(uid=' + cn + '))',
                 search_scope=SUBTREE,
-                attributes=['cn'],
+                attributes=['uid'],
                 paged_size=5)
     if len(conn.response) > 0:
         return True

@@ -33,11 +33,9 @@ def get_all_scouts(org):
     scoutIds = get_all_scoutids(org)
     members = []
     for id in scoutIds:
-        url = '{0}/member/findMemberByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,id)
-        r = requests.get(url,headers=headers)
-        json = r.json()
-        if 'MEMBER_FULL' in json['Member']['scoutState']:
-            members.append(json['Member'])
+        member = get_scout(id)
+        if member != None:
+            members.append(member)
     return members
 
 
