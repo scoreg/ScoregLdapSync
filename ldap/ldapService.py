@@ -23,7 +23,7 @@ def connect(conf):
 
 def create_database(members):
     for member in members:
-        conn.add('cn= ' + member.get('scoutId', '') + ',' + config['UserDN'], 'inetorgperson',
+        conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
                  {'givenName': member.get('firstname', ''),
                   'sn': remove_accents(member.get('lastname', '')),
                   'mail': member.get('emailPrimary', ''),
@@ -32,7 +32,11 @@ def create_database(members):
                   'l': member.get('city'),
                   'street': member.get('street', ''),
                   'postalCode': member.get('postcode', '')})
-        logging.info(conn.result)
+        if conn.result['result'] > 0:
+            logging.error(conn.result)
+            logging.error(member)
+        else:
+            logging.info(conn.result)
 
 
 def create_group(groupname):
@@ -55,8 +59,8 @@ def removeuser_group(cn, groupname):
 
 def update_database(members):
     for member in members:
-        if member_exist(member.get('scoutId', '')):
-            conn.modify('cn= ' + member.get('scoutId', '') + ',' + config['UserDN'],
+        if member_exist(__get_cn(member)):
+            conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
                         {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
                          'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
                          'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
@@ -65,7 +69,7 @@ def update_database(members):
                          'street': (MODIFY_REPLACE, [member.get('street', '')]),
                          'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
         else:
-            conn.add('cn= ' + member.get('scoutId', '') + ',' + config['UserDN'], 'inetorgperson',
+            conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
                      {'givenName': member.get('firstname', ''),
                       'sn': remove_accents(member.get('lastname', '')),
                       'mail': member.get('emailPrimary', ''),
@@ -74,7 +78,11 @@ def update_database(members):
                       'l': member.get('city'),
                       'street': member.get('street', ''),
                       'postalCode': member.get('postcode', '')})
-        logging.info(conn.result)
+        if conn.result['result'] > 0:
+            logging.error(conn.result)
+            logging.error(member)
+        else:
+            logging.info(conn.result)
 
 
 def update_password(cn, newpw):
@@ -105,9 +113,9 @@ def find_member(cn):
     return None
 
 
-def member_exist(cn):
+def member_exist(uid):
     conn.search(search_base=config['UserDN'],
-                search_filter='(&(objectClass=inetOrgPerson)(uid=' + cn + '))',
+                search_filter='(&(objectClass=inetOrgPerson)(uid=' + uid + '))',
                 search_scope=SUBTREE,
                 attributes=['uid'],
                 paged_size=5)
@@ -126,6 +134,13 @@ def unbind():
 
 def get_username(member):
     return generate_username(member.get('firstname', ''), member.get('lastname', ''))
+
+
+def __get_cn(member):
+    return remove_accents("{0}{1}-{2}".format(
+        member.get('firstname', '')[0],
+        member.get('lastname', ''),
+        member.get('scoutId', '')).lower())
 
 
 def generate_username(first_name, last_name):
