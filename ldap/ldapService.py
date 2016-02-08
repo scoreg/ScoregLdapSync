@@ -23,20 +23,7 @@ def connect(conf):
 
 def create_database(members):
     for member in members:
-        conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
-                 {'givenName': member.get('firstname', ''),
-                  'sn': remove_accents(member.get('lastname', '')),
-                  'mail': member.get('emailPrimary', ''),
-                  'uid': get_username(member),
-                  'st': member.get('country', ''),
-                  'l': member.get('city'),
-                  'street': member.get('street', ''),
-                  'postalCode': member.get('postcode', '')})
-        if conn.result['result'] > 0:
-            logging.error(conn.result)
-            logging.error(member)
-        else:
-            logging.info(conn.result)
+        __adduser(member)
 
 
 def create_group(groupname):
@@ -59,7 +46,7 @@ def removeuser_group(cn, groupname):
 
 def update_database(members):
     for member in members:
-        if member_exist(__get_cn(member)):
+        if member_exist(get_username(member)):
             conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
                         {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
                          'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
@@ -69,15 +56,7 @@ def update_database(members):
                          'street': (MODIFY_REPLACE, [member.get('street', '')]),
                          'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
         else:
-            conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
-                     {'givenName': member.get('firstname', ''),
-                      'sn': remove_accents(member.get('lastname', '')),
-                      'mail': member.get('emailPrimary', ''),
-                      'uid': get_username(member),
-                      'st': member.get('country', ''),
-                      'l': member.get('city'),
-                      'street': member.get('street', ''),
-                      'postalCode': member.get('postcode', '')})
+            __adduser(member)
         if conn.result['result'] > 0:
             logging.error(conn.result)
             logging.error(member)
@@ -136,11 +115,28 @@ def get_username(member):
     return generate_username(member.get('firstname', ''), member.get('lastname', ''))
 
 
+def __adduser(member):
+    conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
+             {'givenName': member.get('firstname', ''),
+              'sn': remove_accents(member.get('lastname', '')),
+              'mail': member.get('emailPrimary', ''),
+              'description': member.get('scoutId', ''),
+              'uid': get_username(member),
+              'st': member.get('country', ''),
+              'l': member.get('city'),
+              'street': member.get('street', ''),
+              'postalCode': member.get('postcode', '')})
+    if conn.result['result'] > 0:
+        logging.error(conn.result)
+        logging.error(member)
+    else:
+        logging.info(conn.result)
+
+
 def __get_cn(member):
-    return remove_accents("{0}{1}-{2}".format(
+    return remove_accents("{0}{1}".format(
         member.get('firstname', '')[0],
-        member.get('lastname', ''),
-        member.get('scoutId', '')).lower())
+        member.get('lastname', ''))).lower() + "-" + member.get('scoutId', '');
 
 
 def generate_username(first_name, last_name):
