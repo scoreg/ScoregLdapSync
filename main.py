@@ -19,8 +19,6 @@ def main():
 
     #sorted(members,key=attrgetter('scoutId'))
 
-    ldapService.adduserfull(memberService.get_scout_complete('5-2266'))
-
     if conf['Default'].getboolean('createmode'):
         for id in scoutIds:
             member = memberService.get_scout_complete(id)
