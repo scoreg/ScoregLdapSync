@@ -40,10 +40,19 @@ def get_all_scouts(org):
     return members
 
 
-def get_scout(scoudId):
-    url = '{0}/member/findMemberByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,scoudId)
+def get_scout(scoutId):
+    url = '{0}/member/findMemberByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl, username, password, authid, webid, scoutId)
     r = requests.get(url,headers=headers)
     json = r.json()
     if 'MEMBER_FULL' == json['Member']['scoutState']:
         return json['Member']
+    return None
+
+
+def get_scout_complete(scoutId):
+    url = '{0}/member/findMemberCompleteByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,scoutId)
+    r = requests.get(url,headers=headers)
+    json = r.json()
+    if 'MEMBER_FULL' == json['MemberComplete']['scoutState']:
+        return json['MemberComplete']
     return None

@@ -15,14 +15,21 @@ def main():
     ldapService.connect(conf['ldap'])
     memberService.init(conf['Scoreg'])
 
-    members = memberService.get_all_scouts(conf['Scoreg']['OrgId'])
+    scoutIds = memberService.get_all_scoutids(conf['Scoreg']['OrgId'])
 
     #sorted(members,key=attrgetter('scoutId'))
 
     if conf['Default'].getboolean('createmode'):
-        ldapService.create_database(members)
+        for id in scoutIds:
+            member = memberService.get_scout_complete(id)
+            if member is not None:
+                ldapService.adduserfull(member)
     else:
-        ldapService.update_database(members)
+        for id in scoutIds:
+            member = memberService.get_scout_complete(id)
+            if member is not None:
+                ldapService.modifyuserfull(member)
+
     ldapService.unbind()
 
 if __name__ == '__main__':

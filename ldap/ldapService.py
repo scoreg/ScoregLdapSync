@@ -23,7 +23,7 @@ def connect(conf):
 
 def create_database(members):
     for member in members:
-        __adduser(member)
+        adduser(member)
 
 
 def create_group(groupname):
@@ -46,17 +46,10 @@ def removeuser_group(cn, groupname):
 
 def update_database(members):
     for member in members:
-        if member_exist(get_username(member)):
-            conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
-                        {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
-                         'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
-                         'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
-                         'st': (MODIFY_REPLACE, [member.get('country', '')]),
-                         'l': (MODIFY_REPLACE, [member.get('city')]),
-                         'street': (MODIFY_REPLACE, [member.get('street', '')]),
-                         'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
+        if member_exist(__get_username(member)):
+            modifyuser(member)
         else:
-            __adduser(member)
+            adduser(member)
         if conn.result['result'] > 0:
             logging.error(conn.result)
             logging.error(member)
@@ -111,21 +104,73 @@ def unbind():
 # Private functions
 
 
-def get_username(member):
+def __get_username(member):
     return generate_username(member.get('firstname', ''), member.get('lastname', ''))
 
 
-def __adduser(member):
+def adduser(member):
     conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
              {'givenName': member.get('firstname', ''),
               'sn': remove_accents(member.get('lastname', '')),
               'mail': member.get('emailPrimary', ''),
               'description': member.get('scoutId', ''),
-              'uid': get_username(member),
+              'uid': __get_username(member),
               'st': member.get('country', ''),
               'l': member.get('city'),
               'street': member.get('street', ''),
               'postalCode': member.get('postcode', '')})
+    if conn.result['result'] > 0:
+        logging.error(conn.result)
+        logging.error(member)
+    else:
+        logging.info(conn.result)
+
+
+def adduserfull(member):
+    conn.add('cn= ' + __get_cn(member) + ',' + config['UserDN'], 'inetorgperson',
+             {'givenName': member.get('firstname', ''),
+              'sn': remove_accents(member.get('lastname', '')),
+              'mail': member.get('emailPrimary', ''),
+              'mail': member.get('emailSecondary', ''),
+              'description': member.get('scoutId', ''),
+              'uid': member.get('username', ''),
+              'userPassword': "{MD5}"+member.get('password',''),
+              'st': member.get('country', ''),
+              'l': member.get('city'),
+              'street': member.get('street', ''),
+              'postalCode': member.get('postcode', '')})
+    if conn.result['result'] > 0:
+        logging.error(conn.result)
+        logging.error(member)
+    else:
+        logging.info(conn.result)
+
+
+def modifyuser(member):
+    conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
+                {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
+                 'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
+                 'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
+                 'st': (MODIFY_REPLACE, [member.get('country', '')]),
+                 'l': (MODIFY_REPLACE, [member.get('city')]),
+                 'street': (MODIFY_REPLACE, [member.get('street', '')]),
+                 'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
+    if conn.result['result'] > 0:
+        logging.error(conn.result)
+        logging.error(member)
+    else:
+        logging.info(conn.result)
+
+
+def modifyuserfull(member):
+    conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
+                {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
+                 'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
+                 'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
+                 'st': (MODIFY_REPLACE, [member.get('country', '')]),
+                 'l': (MODIFY_REPLACE, [member.get('city')]),
+                 'street': (MODIFY_REPLACE, [member.get('street', '')]),
+                 'postalCode': (MODIFY_REPLACE, [member.get('postcode', '')])})
     if conn.result['result'] > 0:
         logging.error(conn.result)
         logging.error(member)
