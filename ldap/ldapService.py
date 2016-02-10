@@ -1,5 +1,5 @@
 from ldap3 import Server, Connection, ALL, MODIFY_ADD, MODIFY_DELETE, MODIFY_REPLACE, SUBTREE
-import logging, unicodedata, string
+import logging, unicodedata, string, codecs, base64
 from ldap import ldaputil
 
 conn = None
@@ -131,10 +131,9 @@ def adduserfull(member):
              {'givenName': member.get('firstname', ''),
               'sn': remove_accents(member.get('lastname', '')),
               'mail': member.get('emailPrimary', ''),
-              'mail': member.get('emailSecondary', ''),
+
               'description': member.get('scoutId', ''),
               'uid': member.get('username', ''),
-              'userPassword': "{MD5}"+member.get('password',''),
               'st': member.get('country', ''),
               'l': member.get('city'),
               'street': member.get('street', ''),
@@ -144,6 +143,16 @@ def adduserfull(member):
         logging.error(member)
     else:
         logging.info(conn.result)
+    if member.get('emailSecondary') is not None:
+        conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
+                    {
+                        'mail': (MODIFY_ADD, [member.get('emailSecondary', ''), ]),
+                    })
+        if conn.result['result'] > 0:
+            logging.error(conn.result)
+            logging.error(member)
+        else:
+            logging.info(conn.result)
 
 
 def modifyuser(member):
