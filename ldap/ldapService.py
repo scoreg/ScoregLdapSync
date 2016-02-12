@@ -131,7 +131,6 @@ def adduserfull(member):
              {'givenName': member.get('firstname', ''),
               'sn': remove_accents(member.get('lastname', '')),
               'mail': member.get('emailPrimary', ''),
-
               'description': member.get('scoutId', ''),
               'uid': member.get('username', ''),
               'st': member.get('country', ''),
@@ -176,6 +175,8 @@ def modifyuserfull(member):
                 {'givenName': (MODIFY_REPLACE, [member.get('firstname', '')]),
                  'sn': (MODIFY_REPLACE, [remove_accents(member.get('lastname', ''))]),
                  'mail': (MODIFY_REPLACE, [member.get('emailPrimary', '')]),
+                 'description': (MODIFY_REPLACE, [member.get('scoutId', '')]),
+                 'uid': (MODIFY_REPLACE, [member.get('username', '')]),
                  'st': (MODIFY_REPLACE, [member.get('country', '')]),
                  'l': (MODIFY_REPLACE, [member.get('city')]),
                  'street': (MODIFY_REPLACE, [member.get('street', '')]),
@@ -185,6 +186,16 @@ def modifyuserfull(member):
         logging.error(member)
     else:
         logging.info(conn.result)
+    if member.get('emailSecondary') is not None:
+        conn.modify('cn= ' + __get_cn(member) + ',' + config['UserDN'],
+                    {
+                        'mail': (MODIFY_ADD, [member.get('emailSecondary', ''), ]),
+                    })
+        if conn.result['result'] > 0:
+            logging.error(conn.result)
+            logging.error(member)
+        else:
+            logging.info(conn.result)
 
 
 def __get_cn(member):
