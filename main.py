@@ -23,12 +23,12 @@ def main():
         for id in scoutIds:
             member = memberService.get_scout_complete(id)
             if member is not None:
-                ldapService.adduserfull(member)
+                ldapService.adduser(member)
     else:
         for id in scoutIds:
             member = memberService.get_scout_complete(id)
             if member is not None:
-                ldapService.modifyuserfull(member)
+                ldapService.adduser(member)
 
     ldapService.unbind()
 
