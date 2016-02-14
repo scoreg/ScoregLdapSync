@@ -7,7 +7,7 @@ import logging
 
 
 def main():
-    logging.basicConfig(handlers=[logging.FileHandler('ldap.log', 'w', 'utf-8')],
+    logging.basicConfig(handlers=[logging.FileHandler('log/ldap.log', 'w', 'utf-8')],
                         format='%(asctime)s %(levelname)s:%(message)s',
                         level=logging.INFO)
 
