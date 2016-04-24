@@ -26,8 +26,8 @@ def get_all_scoutids(org):
     url = '{0}/member/findScoutIdsForOrganization/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,org)
     r = requests.get(url,headers=headers)
     json = r.json()
-    list = json['ScoutIdList']
-    return list['list']
+    #list = json['ScoutIdList']
+    return json['list']#list['list']
 
 
 def get_all_scouts(org):
@@ -53,6 +53,6 @@ def get_scout_complete(scoutId):
     url = '{0}/member/findMemberCompleteByScoutId/{1}/{2}/{3}/{4}/{5}'.format(resturl,username,password,authid,webid,scoutId)
     r = requests.get(url,headers=headers)
     json = r.json()
-    if 'MEMBER_FULL' == json['MemberComplete']['scoutState']:
-        return json['MemberComplete']
+    if 'MEMBER_FULL' == json['scoutState']:#json['MemberComplete']['scoutState']:
+        return json#['MemberComplete']
     return None
