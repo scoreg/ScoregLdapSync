@@ -36,12 +36,6 @@ def main():
     ldapService.connect(conf['ldap'])
     memberService.init(conf['Scoreg'])
 
-    from passlib.apps import ldap_context
-    ldap_context = ldap_context.replace(default="ldap_salted_sha1")
-
-
-    print(ldap_context.encrypt('test'))
-
     scoutIds = memberService.get_all_scoutids(conf['Scoreg']['OrgId'])
 
     #sorted(members,key=attrgetter('scoutId'))
